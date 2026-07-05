@@ -1,4 +1,4 @@
-package com.Piero.doggoapp.ui.theme
+package com.piero.doggoapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

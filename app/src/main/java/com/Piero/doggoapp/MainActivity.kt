@@ -1,47 +1,27 @@
-package com.Piero.doggoapp
+package com.piero.doggoapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.Piero.doggoapp.ui.theme.DoggoAppTheme
+import androidx.navigation.compose.rememberNavController
+import com.piero.doggoapp.presentation.components.AppScaffold
+import com.piero.doggoapp.presentation.navigation.AppNavigation
+import com.piero.doggoapp.ui.theme.DoggoAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             DoggoAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                val navController = rememberNavController()
+
+                AppScaffold(navHostController = navController) { paddingValues ->
+                    AppNavigation(
+                        navHostController = navController,
+                        paddingValues = paddingValues
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DoggoAppTheme {
-        Greeting("Android")
     }
 }
