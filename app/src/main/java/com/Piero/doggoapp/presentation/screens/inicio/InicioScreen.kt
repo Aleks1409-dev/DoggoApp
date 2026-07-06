@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +32,8 @@ import com.piero.doggoapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioScreen() {
+fun InicioScreen(viewModel: InicioViewModel) {
+    val cuidadores by viewModel.cuidadores.collectAsState()
     val colorFondo = Color(0xFFFCFBF8)
     val colorVerde = Color(0xFF10B981)
 
@@ -130,57 +133,8 @@ fun InicioScreen() {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            item {
-                CuidadorCardMock(
-                    nombre = "Lionel Messi",
-                    ubicacion = "La Molina • a 6.4 km",
-                    rating = "5.0",
-                    reviews = "(841)",
-                    precio = "S/ 150",
-                    tipo = "Paseos",
-                    badgeText = "GOAT",
-                    badgeColor = Color(0xFFD4E6F1),
-                    imagenResId = R.drawable.messi
-                )
-            }
-            item {
-                CuidadorCardMock(
-                    nombre = "Cristiano Ronaldo",
-                    ubicacion = "Miraflores • a 1.2 km",
-                    rating = "4.9",
-                    reviews = "(777)",
-                    precio = "S/ 140",
-                    tipo = "Hospedaje",
-                    badgeText = "Premium",
-                    badgeColor = Color(0xFFEAECEE),
-                    imagenResId = R.drawable.cr7
-                )
-            }
-            item {
-                CuidadorCardMock(
-                    nombre = "Lamine Yamal",
-                    ubicacion = "San Isidro • a 3.0 km",
-                    rating = "4.7",
-                    reviews = "(120)",
-                    precio = "S/ 80",
-                    tipo = "Cuidado diurno",
-                    badgeText = "Nuevo",
-                    badgeColor = Color(0xFFFFF3CD),
-                    imagenResId = R.drawable.yamal
-                )
-            }
-            item {
-                CuidadorCardMock(
-                    nombre = "Erling Haaland",
-                    ubicacion = "Surco • a 5.5 km",
-                    rating = "4.8",
-                    reviews = "(350)",
-                    precio = "S/ 100",
-                    tipo = "Paseos intensos",
-                    badgeText = "Máquina",
-                    badgeColor = Color(0xFFD1F2EB),
-                    imagenResId = R.drawable.haaland
-                )
+            items(cuidadores) { cuidador ->
+                CuidadorCardReal(cuidador = cuidador)
             }
         }
     }
@@ -266,4 +220,19 @@ fun CuidadorCardMock(
             }
         }
     }
+}
+
+@Composable
+fun CuidadorCardReal(cuidador: com.piero.doggoapp.domain.model.Cuidador) {
+    CuidadorCardMock(
+        nombre = cuidador.nombre,
+        ubicacion = cuidador.ubicacion,
+        rating = cuidador.rating.toString(),
+        reviews = "(Verificado)",
+        precio = "S/ ${cuidador.precio}",
+        tipo = cuidador.tipo,
+        badgeText = "En línea",
+        badgeColor = Color(0xFFD4E6F1),
+        imagenResId = R.drawable.messi
+    )
 }
