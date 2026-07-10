@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.piero.doggoapp"
+    namespace = "com.grupo06.doggoapp"
     compileSdk {
         version = release(37) {
             minorApiLevel = 1
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.piero.doggoapp"
+        applicationId = "com.grupo06.doggoapp"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
