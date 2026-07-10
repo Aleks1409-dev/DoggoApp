@@ -1,13 +1,10 @@
 import json
-import pymysql
-import datetime
-from pymysql.err import IntegrityError
+import boto3
+from decimal import Decimal
 
-# parametro de conexión RDS
-rds_host = "doggodb.c9tbszia7mni.eu-west-1.rds.amazonaws.com"
-db_user = "admin"
-db_password = "c6*fjC(b[A5jaZk?9~Iut>P:wR.D"
-db_name = "doggodb"
+TABLE_NAME = "doggo-services"
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(TABLE_NAME)
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -15,28 +12,26 @@ CORS_HEADERS = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
 }
 
+
+def _json_default(value):
+    # boto3 devuelve los números de DynamoDB (ej. price) como Decimal
+    if isinstance(value, Decimal):
+        return int(value) if value % 1 == 0 else float(value)
+    raise TypeError(f"Object of type {type(value)} is not JSON serializable")
+
+
 def handler(event, context):
     http_method = event.get("httpMethod", "")
 
     if http_method == "GET":
         try:
-            connection = pymysql.connect(
-                host=rds_host,
-                user=db_user,
-                password=db_password,
-                database=db_name,
-                cursorclass=pymysql.cursors.DictCursor,
-            )
-
-            with connection.cursor() as cursor:
-                sql = "SELECT id, title, price, sitter_id, created_at FROM services"
-                cursor.execute(sql)
-                result = cursor.fetchall()
+            response = table.scan()
+            result = response.get("Items", [])
 
             return {
                 "statusCode": 200,
                 "headers": {"Content-Type": "application/json", **CORS_HEADERS},
-                "body": json.dumps(result, default=str),
+                "body": json.dumps(result, default=_json_default),
             }
 
         except Exception as e:

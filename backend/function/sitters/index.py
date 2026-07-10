@@ -1,12 +1,10 @@
 import json
-import pymysql
-import datetime
+import boto3
+from boto3.dynamodb.conditions import Key
 
-# parametro de conexión RDS
-rds_host = "doggodb.c9tbszia7mni.eu-west-1.rds.amazonaws.com"
-db_user = "admin"
-db_password = "c6*fjC(b[A5jaZk?9~Iut>P:wR.D"
-db_name = "doggodb"
+TABLE_NAME = "doggo-users"
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(TABLE_NAME)
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -16,23 +14,16 @@ CORS_HEADERS = {
 
 def handler(event, context):
     try:
-        connection = pymysql.connect(
-            host=rds_host,
-            user=db_user,
-            password=db_password,
-            db=db_name,
-            cursorclass=pymysql.cursors.DictCursor,
+        # doggo-users tiene una GSI role-index para listar por rol sin Scan
+        response = table.query(
+            IndexName="role-index",
+            KeyConditionExpression=Key("role").eq("sitter"),
         )
+        sitters = response.get("Items", [])
 
-        with connection.cursor() as cursor:
-            sql = "SELECT id, name, email, role, created_at FROM users WHERE role = %s"
-            cursor.execute(sql, ("sitter",))
-            sitters = cursor.fetchall()
-
-        # Convertir datetime a string
+        # replica el SELECT id, name, email, role, created_at (sin encrypted_password)
         for sitter in sitters:
-            if isinstance(sitter.get("created_at"), datetime.datetime):
-                sitter["created_at"] = sitter["created_at"].isoformat()
+            sitter.pop("encrypted_password", None)
 
         return {
             "statusCode": 200,
