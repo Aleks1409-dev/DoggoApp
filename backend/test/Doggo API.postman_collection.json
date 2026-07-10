@@ -1,0 +1,1057 @@
+{
+  "info": {
+    "_postman_id": "f667c5ab-2617-4080-8085-b835749e17a1",
+    "name": "Doggo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "16014399"
+  },
+  "item": [
+    {
+      "name": "messages",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization2",
+            "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJlbWFpbCI6InJhdWwudGFwYXJhQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNzQ3NjAwNTY5fQ.WxQvK5g3EmnSaITYKdiMgryuYoaM08X6-tQAn7bNsn4",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/messages",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "messages",
+          "originalRequest": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization2",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJlbWFpbCI6InJhdWwudGFwYXJhQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiZXhwIjoxNzQ3NjAwNTY5fQ.WxQvK5g3EmnSaITYKdiMgryuYoaM08X6-tQAn7bNsn4",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/messages",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:53:18 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "258"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "37ce71de-5f73-4036-8c32-8cdc19187fcf"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARXrQHuCoAMEORg="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506cad-6bb4e5f914140a6549f70b15;Parent=36be792d6f6a252f;Sampled=0;Lineage=1:22ba005a:0"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n    {\n        \"content\": \"hola, quiero agendar para el día jueves?\",\n        \"sitter_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n        \"created_at\": \"2026-07-10T02:30:00.000000\",\n        \"id\": \"5a7c8b9d-2e4f-4a6b-8c1d-3e5f7a9b1c2d\",\n        \"client_id\": \"d4e5f6a7-1b2c-4d3e-8f9a-0b1c2d3e4f5a\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "sitters",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/sitters",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "sitters"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "sitters",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/sitters",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "sitters"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:54:45 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "175"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "1e7b667a-5f81-49c8-8e67-14a41c5c473c"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARX4tEZSIAMEY7w="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506d04-0c91639a2512f73b446e9106;Parent=5e133c0acaf46e89;Sampled=0;Lineage=1:f79b1f27:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"sitters\": [\n        {\n            \"role\": \"sitter\",\n            \"email\": \"ana.ramirez@hotmail.com\",\n            \"id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n            \"created_at\": \"2026-07-10 02:30:00\",\n            \"name\": \"Ana Ramirez\"\n        }\n    ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "schedule/{sitterId}",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/schedule/3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "schedule",
+            "3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "schedule/{sitterId}",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/schedule/3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:55:40 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "92"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "c9435b3f-f878-42f8-9042-8612240db56a"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARYBiE55IAMEO5A="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506d3c-2d114841496f29d62eabd47b;Parent=0aaa280bfa32ea18;Sampled=0;Lineage=1:45c67718:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"days_available\": [\n        {\n            \"appointment_date\": \"2026-07-20\",\n            \"appointment_range\": \"08:00-12:00\"\n        }\n    ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "schedule/{sitterId}",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n  \"appointment_date\": \"2026-07-20\",\n  \"appointment_range\": \"08:00-12:00\"\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/schedule/3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "schedule",
+            "3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "schedule/{sitterId}",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n  \"appointment_date\": \"2026-07-20\",\n  \"appointment_range\": \"08:00-12:00\"\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/schedule/3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "schedule",
+                "3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:56:21 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "112"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "7384faf7-82b2-4b89-a752-029018bc4332"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARYH6FThoAMELbA="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506d65-180e766e60f34f8b6c9aa013;Parent=1b3efbc3737f30ce;Sampled=0;Lineage=1:45c67718:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"Cita agendada correctamente\",\n    \"appointment_date\": \"2026-07-20\",\n    \"appointment_range\": \"08:00-12:00\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "messages",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"content\": \"hola, quiero reservar, puede hoy??\",\n    \"sitter_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n    \"client_id\": \"d4e5f6a7-1b2c-4d3e-8f9a-0b1c2d3e4f5a\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/messages",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "messages"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "messages",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"content\": \"hola, quiero reservar, puede hoy??\",\n    \"sitter_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n    \"client_id\": \"d4e5f6a7-1b2c-4d3e-8f9a-0b1c2d3e4f5a\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/messages",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:59:47 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "98"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "36476b52-3fce-424e-9284-20e3672d3102"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARYoCHoIIAMEK1g="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506e32-23b7ba6076df27c754fa3ebf;Parent=7e221774868e2a2a;Sampled=0;Lineage=1:22ba005a:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"Mensaje enviado correctamente\",\n    \"message_id\": \"d72c651c-dda2-4564-b8c8-6732cb9d1436\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "services",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/services",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "services"
+          ]
+        },
+        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+      },
+      "response": [
+        {
+          "name": "services",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/services",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "services"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 03:58:34 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "169"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "75d25dd9-c79d-4dde-8fe8-d7fa2006218c"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARYcjEBuIAMEKpQ="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,GET"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506de9-0b5d56cc57f191ae0e75dd4a;Parent=5d8394efa823bd87;Sampled=0;Lineage=1:487ec69d:0"
+            }
+          ],
+          "cookie": [],
+          "body": "[\n    {\n        \"sitter_id\": \"3f9a2c1e-4b8d-4a1f-9c2e-7d6f5a3b1c9e\",\n        \"created_at\": \"2026-07-10 02:30:00\",\n        \"id\": \"b1e4c2d3-6f8a-4e1b-9d2c-5a7f3e9b1c4d\",\n        \"price\": 25,\n        \"title\": \"Paseo\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "email",
+            "value": "rtaparay@gmail.com",
+            "type": "text"
+          },
+          {
+            "key": "password",
+            "value": "123456789",
+            "type": "text"
+          },
+          {
+            "key": "",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "  {\n    \"email\": \"ana.ramirez@hotmail.com\",\n    \"password\": \"password123\"\n  }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/login",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "login"
+          ]
+        },
+        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+      },
+      "response": [
+        {
+          "name": "login",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "email",
+                "value": "rtaparay@gmail.com",
+                "type": "text"
+              },
+              {
+                "key": "password",
+                "value": "123456789",
+                "type": "text"
+              },
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "  {\n    \"email\": \"ana.ramirez@hotmail.com\",\n    \"password\": \"password123\"\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/login",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 04:04:23 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "305"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "8e26c3c0-204a-47ba-b6f0-a296ff81035b"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARZSeG3PoAMEUdQ="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506f42-6652fcd55fa3219468d6da7f;Parent=4b5ae57776c303a4;Sampled=0;Lineage=1:8efa943c:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"success\": \"True\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiM2Y5YTJjMWUtNGI4ZC00YTFmLTljMmUtN2Q2ZjVhM2IxYzllIiwiZW1haWwiOiJhbmEucmFtaXJlekBob3RtYWlsLmNvbSIsInJvbGUiOiJzaXR0ZXIiLCJleHAiOjE3ODM2NTY1NjN9.aulUYeDF-MgKVKT4d6_PMGAyCl47NIni3R5qNVKCgfU\",\n    \"email\": \"ana.ramirez@hotmail.com\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {}
+      },
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"names\": \"Raul Angel\",\n    \"surnames\": \"Tapara\",\n    \"email\": \"raul.tapara5@gmail.com\",\n    \"password\": \"password123\",\n    \"terms_accepted\": true\n}\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/register",
+          "protocol": "https",
+          "host": [
+            "rg65zent76",
+            "execute-api",
+            "us-east-1",
+            "amazonaws",
+            "com"
+          ],
+          "path": [
+            "api",
+            "register"
+          ]
+        },
+        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+      },
+      "response": [
+        {
+          "name": "register",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"names\": \"Raul Angel\",\n    \"surnames\": \"Tapara\",\n    \"email\": \"raul.tapara5@gmail.com\",\n    \"password\": \"password123\",\n    \"terms_accepted\": true\n}\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/register",
+              "protocol": "https",
+              "host": [
+                "rg65zent76",
+                "execute-api",
+                "us-east-1",
+                "amazonaws",
+                "com"
+              ],
+              "path": [
+                "api",
+                "register"
+              ]
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": null,
+          "header": [
+            {
+              "key": "Date",
+              "value": "Fri, 10 Jul 2026 04:05:38 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Content-Length",
+              "value": "31"
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "key": "x-amzn-RequestId",
+              "value": "759df682-1b34-4a62-a346-6d8e6deed33c"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Authorization"
+            },
+            {
+              "key": "x-amz-apigw-id",
+              "value": "ARZeIGN0oAMEvwQ="
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS,POST"
+            },
+            {
+              "key": "X-Amzn-Trace-Id",
+              "value": "Root=1-6a506f8d-0cfec733389db0e6687e8dab;Parent=7cf4fe7b14af7ab1;Sampled=0;Lineage=1:e862ed9d:0"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n    \"message\": \"Registro exitoso\"\n}"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyNywiZW1haWwiOiJyYXVsLnRhcGFyYTVAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJleHAiOjE3NDc3OTY3OTV9.1cgjwuJFG2REQoGCcfXVeer-WdVZ9_A3bx_As-JoTOQ",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "id",
+      "value": "1"
+    },
+    {
+      "key": "base_url",
+      "value": "https://postman-rest-api-learner.glitch.me/"
+    },
+    {
+      "key": "authorizationToken2",
+      "value": "",
+      "type": "string",
+      "disabled": true
+    }
+  ]
+}
