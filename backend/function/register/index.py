@@ -1,14 +1,13 @@
 import json
-import pymysql
+import uuid
 import datetime
+import boto3
 import bcrypt
-from pymysql.err import IntegrityError
+from botocore.exceptions import ClientError
 
-# parametro de conexión RDS
-rds_host = "doggodb.c9tbszia7mni.eu-west-1.rds.amazonaws.com"
-db_user = "admin"
-db_password = "c6*fjC(b[A5jaZk?9~Iut>P:wR.D"
-db_name = "doggodb"
+TABLE_NAME = "doggo-users"
+dynamodb = boto3.resource("dynamodb")
+table = dynamodb.Table(TABLE_NAME)
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -34,39 +33,34 @@ def handler(event, context):
                 "body": json.dumps({"error": "Faltan campos obligatorios"}),
             }
 
-        connection = pymysql.connect(
-            host=rds_host,
-            user=db_user,
-            password=db_password,
-            db=db_name,
-            cursorclass=pymysql.cursors.DictCursor,
-        )
+        # encriptar contraseña
+        password_bytes = password.encode("utf-8")
+        hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+        hashed_password = hashed.decode("utf-8")
 
-        with connection.cursor() as cursor:
-            # encriptar contraseña
-            password_bytes = password.encode("utf-8")
-            hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
-            hashed_password = hashed.decode("utf-8")
-
-            # insertar nuevo usuario
-            sql = """
-            INSERT INTO users (name, email, encrypted_password, role, created_at)
-            VALUES (%s, %s, %s, %s, %s)
-            """
-            try:
-                cursor.execute(sql, (name, email, hashed_password, role, created_at))
-                connection.commit()
-            except IntegrityError as ie:
-                if "Duplicate entry" in str(ie):
-                    return {
-                        "statusCode": 409,
-                        "headers": CORS_HEADERS,
-                        "body": json.dumps(
-                            {"error": "El correo electrónico ya está registrado"}
-                        ),
-                    }
-                else:
-                    raise
+        # insertar nuevo usuario; ConditionExpression reemplaza el UNIQUE KEY email de MySQL
+        try:
+            table.put_item(
+                Item={
+                    "id": str(uuid.uuid4()),
+                    "name": name,
+                    "email": email,
+                    "encrypted_password": hashed_password,
+                    "role": role,
+                    "created_at": created_at,
+                },
+                ConditionExpression="attribute_not_exists(email)",
+            )
+        except ClientError as ce:
+            if ce.response["Error"]["Code"] == "ConditionalCheckFailedException":
+                return {
+                    "statusCode": 409,
+                    "headers": CORS_HEADERS,
+                    "body": json.dumps(
+                        {"error": "El correo electrónico ya está registrado"}
+                    ),
+                }
+            raise
 
         return {
             "statusCode": 201,
