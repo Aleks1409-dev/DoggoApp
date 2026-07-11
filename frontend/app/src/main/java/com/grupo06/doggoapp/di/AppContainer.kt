@@ -1,22 +1,30 @@
 package com.grupo06.doggoapp.di
 
-import com.grupo06.doggoapp.data.remote.ApiService
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import android.content.Context
+import com.grupo06.doggoapp.presentation.viewmodel.InicioViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.LoginViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.PerfilViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.RegistroViewModel
 
-class AppContainer {
+class AppContainer(context: Context) {
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://2ulqi5yey6.execute-api.us-east-1.amazonaws.com/default/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private val networkModule: NetworkModule by lazy { NetworkModule(context) }
+    private val repositoryModule: RepositoryModule by lazy { RepositoryModule(networkModule) }
+    private val useCaseModule: UseCaseModule by lazy { UseCaseModule(repositoryModule) }
 
-    private val apiService: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
+    val loginViewModel: LoginViewModel by lazy {
+        LoginViewModel(useCaseModule.tokenUseCases)
     }
 
-    val cuidadorRepository: CuidadorRepository by lazy {
-        CuidadorRepository(apiService)
+    val registroViewModel: RegistroViewModel by lazy {
+        RegistroViewModel(useCaseModule.tokenUseCases)
+    }
+
+    val inicioViewModel: InicioViewModel by lazy {
+        InicioViewModel(useCaseModule.cuidadorUseCases)
+    }
+
+    val perfilViewModel: PerfilViewModel by lazy {
+        PerfilViewModel(useCaseModule.tokenUseCases)
     }
 }

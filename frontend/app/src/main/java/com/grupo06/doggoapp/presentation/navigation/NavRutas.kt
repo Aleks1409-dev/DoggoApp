@@ -1,6 +1,8 @@
 package com.grupo06.doggoapp.presentation.navigation
 
 object NavRutas {
+    const val LOGIN = "login"
+    const val REGISTRO = "registro"
     const val BIENVENIDA = "bienvenida"
     const val INICIO = "inicio"
     const val AGENDA = "agenda"
@@ -9,6 +11,8 @@ object NavRutas {
 
     fun getTitulo(ruta: String?): String {
         return when {
+            ruta == LOGIN -> ""
+            ruta == REGISTRO -> ""
             ruta == BIENVENIDA -> ""
             ruta == INICIO -> "DoggoApp"
             ruta == AGENDA -> "Mi Agenda"

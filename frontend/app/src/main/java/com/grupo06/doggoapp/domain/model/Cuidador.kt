@@ -7,7 +7,3 @@ data class Cuidador(
     val precio: Int,
     val tipo: String
 )
-
-data class ApiData(
-    val items: List<Cuidador>
-)
