@@ -11,12 +11,12 @@ import com.grupo06.doggoapp.ui.theme.DoggoAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var appContainer: AppContainer
+    private val appContainer: AppContainer by lazy {
+        (application as DoggoApplication).container
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        appContainer = AppContainer()
 
         setContent {
             DoggoAppTheme {

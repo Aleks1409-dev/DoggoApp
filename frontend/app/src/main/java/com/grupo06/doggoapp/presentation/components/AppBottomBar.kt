@@ -17,7 +17,7 @@ fun AppBottomBar(navHostController: NavHostController){
     val opciones = listOf(BotonNavItem.Inicio, BotonNavItem.Agenda, BotonNavItem.Mensajes, BotonNavItem.Perfil)
     val rutaSel = navHostController.currentBackStackEntryAsState().value?.destination?.route
 
-    if (rutaSel == NavRutas.BIENVENIDA) return
+    if (rutaSel == NavRutas.BIENVENIDA || rutaSel == NavRutas.LOGIN || rutaSel == NavRutas.REGISTRO) return
 
     NavigationBar(
         containerColor = Color.White

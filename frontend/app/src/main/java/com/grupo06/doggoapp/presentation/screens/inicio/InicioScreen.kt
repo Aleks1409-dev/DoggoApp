@@ -29,11 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.grupo06.doggoapp.R
+import com.grupo06.doggoapp.di.AppContainer
+import com.grupo06.doggoapp.presentation.components.EmptyScreen
+import com.grupo06.doggoapp.presentation.components.LoadingScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioScreen(viewModel: InicioViewModel) {
-    val cuidadores by viewModel.cuidadores.collectAsState()
+fun InicioScreen(appContainer: AppContainer) {
+    val viewModel = appContainer.inicioViewModel
+    val uiState by viewModel.uiState.collectAsState()
+    val cuidadores = uiState.cuidadores
     val colorFondo = Color(0xFFFCFBF8)
     val colorVerde = Color(0xFF10B981)
 
@@ -128,13 +133,19 @@ fun InicioScreen(viewModel: InicioViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 80.dp)
-        ) {
-            items(cuidadores) { cuidador ->
-                CuidadorCardReal(cuidador = cuidador)
+        when {
+            uiState.isLoading -> LoadingScreen(mensaje = "Buscando cuidadores...")
+            cuidadores.isEmpty() -> EmptyScreen(mensaje = "No hay cuidadores disponibles")
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
+                ) {
+                    items(cuidadores) { cuidador ->
+                        CuidadorCardReal(cuidador = cuidador)
+                    }
+                }
             }
         }
     }
