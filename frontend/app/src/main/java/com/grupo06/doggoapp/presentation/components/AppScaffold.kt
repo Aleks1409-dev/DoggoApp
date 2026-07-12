@@ -18,8 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.grupo06.doggoapp.presentation.event.EventBus
-import com.grupo06.doggoapp.presentation.event.UiEvent
+import com.grupo06.doggoapp.presentation.events.EventBus
+import com.grupo06.doggoapp.presentation.events.UiEvent
 
 @Composable
 fun AppScaffold(navHostController: NavHostController,

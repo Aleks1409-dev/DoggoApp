@@ -1,18 +1,20 @@
-package com.grupo06.doggoapp.presentation.screens.inicio
+package com.grupo06.doggoapp.presentation.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
 import com.grupo06.doggoapp.data.repository.CuidadoresResultado
 import com.grupo06.doggoapp.domain.model.Cuidador
+import com.grupo06.doggoapp.domain.usecase.CuidadorUseCases
+import com.grupo06.doggoapp.presentation.screens.inicio.InicioEstado
+import com.grupo06.doggoapp.presentation.screens.inicio.InicioUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class InicioViewModel(private val repository: CuidadorRepository) : ViewModel() {
+class InicioViewModel(private val useCases: CuidadorUseCases) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InicioUiState())
     val uiState = _uiState.asStateFlow()
@@ -46,7 +48,7 @@ class InicioViewModel(private val repository: CuidadorRepository) : ViewModel() 
     private fun cargarCuidadores() {
         cargaJob?.cancel()
         cargaJob = viewModelScope.launch {
-            repository.obtenerCuidadores().collect { resultado ->
+            useCases.getCuidadoresFlow().collect { resultado ->
                 when (resultado) {
                     is CuidadoresResultado.Cargando -> {
                         _uiState.update { it.copy(estado = InicioEstado.Loading) }

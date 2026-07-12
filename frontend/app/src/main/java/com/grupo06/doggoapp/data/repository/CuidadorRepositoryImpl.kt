@@ -2,10 +2,11 @@ package com.grupo06.doggoapp.data.repository
 
 import android.util.Log
 import com.grupo06.doggoapp.data.local.DemoCaregiverData
-import com.grupo06.doggoapp.data.remote.ApiService
+import com.grupo06.doggoapp.data.remote.datasource.RemoteDataSource
 import com.grupo06.doggoapp.data.remote.dto.toDomain
 import com.grupo06.doggoapp.domain.model.Cuidador
 import com.grupo06.doggoapp.domain.model.Servicio
+import com.grupo06.doggoapp.domain.repository.CuidadorRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -34,7 +35,26 @@ sealed interface CuidadorResultado {
     data class Error(val exception: Throwable) : CuidadorResultado
 }
 
-class CuidadorRepository(private val apiService: ApiService) {
+class CuidadorRepositoryImpl(
+    private val remoteDataSource: RemoteDataSource
+) : CuidadorRepository {
+
+    override suspend fun getCuidadores(): List<Cuidador> {
+        return try {
+            val resultado = obtenerCuidadores()
+            var lista: List<Cuidador> = emptyList()
+            resultado.collect { estado ->
+                when (estado) {
+                    is CuidadoresResultado.Exito -> lista = estado.cuidadores
+                    else -> { /* ignorar estados transitorios */ }
+                }
+            }
+            lista
+        } catch (e: Exception) {
+            Log.e("CuidadorRepositoryImpl", "Error en getCuidadores", e)
+            emptyList()
+        }
+    }
 
     /**
      * Obtiene los cuidadores y sus servicios asociados.
@@ -43,38 +63,20 @@ class CuidadorRepository(private val apiService: ApiService) {
      * y enriquece los datos con información local de demostración mientras el backend
      * no provea ubicación, especialidades, foto, etc.
      */
-    fun obtenerCuidadores(): Flow<CuidadoresResultado> = flow {
+    override fun obtenerCuidadores(): Flow<CuidadoresResultado> = flow {
         emit(CuidadoresResultado.Cargando)
 
         try {
-            val sittersResponse = withContext(Dispatchers.IO) { apiService.getSitters() }
-            val servicesDto = withContext(Dispatchers.IO) { apiService.getServices() }
+            val sittersResponse = withContext(Dispatchers.IO) { remoteDataSource.getSitters() }
+            val servicesDto = withContext(Dispatchers.IO) { remoteDataSource.getServices() }
 
             val servicios = servicesDto.mapNotNull { it.toDomain() }
-            val cuidadores = sittersResponse.sitters.orEmpty().mapNotNull { dto ->
+            val cuidadores = sittersResponse?.sitters.orEmpty().mapNotNull { dto ->
                 val base = dto.toDomain() ?: return@mapNotNull null
-                val serviciosDelCuidador = servicios.filter { it.cuidadorId == base.id }
-                val tarifaMinima = serviciosDelCuidador.minOfOrNull { it.precio }
-                val demo = DemoCaregiverData.getFor(
-                    email = base.email,
-                    nombre = base.nombre
-                )
-
-                base.copy(
-                    ubicacion = demo.ubicacion,
-                    experiencia = demo.experiencia,
-                    especialidades = demo.especialidades,
-                    fotoResId = demo.fotoResId,
-                    rating = demo.rating,
-                    tipo = demo.tipo,
-                    servicios = serviciosDelCuidador,
-                    tarifaMinima = tarifaMinima,
-                    disponible = demo.disponible,
-                    premium = demo.premium
-                )
+                enriquecerCuidador(base, servicios)
             }
 
-            Log.d("CuidadorRepository", "Cuidadores cargados: ${cuidadores.size}")
+            Log.d("CuidadorRepositoryImpl", "Cuidadores cargados: ${cuidadores.size}")
 
             val serviciosDisponibles = servicios
                 .map { it.titulo }
@@ -87,17 +89,15 @@ class CuidadorRepository(private val apiService: ApiService) {
                 emit(CuidadoresResultado.Exito(cuidadores, serviciosDisponibles))
             }
         } catch (e: Exception) {
-            Log.e("CuidadorRepository", "Error al cargar cuidadores: ${e.message}", e)
+            Log.e("CuidadorRepositoryImpl", "Error al cargar cuidadores: ${e.message}", e)
             emit(CuidadoresResultado.Error(e))
         }
     }
 
     /**
      * Recupera un cuidador por su [sitterId] reutilizando el flujo de [obtenerCuidadores].
-     *
-     * Útil mientras el backend no exponga un endpoint individual como GET /sitters/{id}.
      */
-    fun obtenerCuidador(sitterId: String): Flow<CuidadorResultado> = flow {
+    override fun obtenerCuidador(sitterId: String): Flow<CuidadorResultado> = flow {
         emit(CuidadorResultado.Cargando)
 
         obtenerCuidadores().collect { resultado ->
@@ -127,5 +127,27 @@ class CuidadorRepository(private val apiService: ApiService) {
                 }
             }
         }
+    }
+
+    private fun enriquecerCuidador(base: Cuidador, servicios: List<Servicio>): Cuidador {
+        val serviciosDelCuidador = servicios.filter { it.cuidadorId == base.id }
+        val tarifaMinima = serviciosDelCuidador.minOfOrNull { it.precio }
+        val demo = DemoCaregiverData.getFor(
+            email = base.email,
+            nombre = base.nombre
+        )
+
+        return base.copy(
+            ubicacion = demo.ubicacion,
+            experiencia = demo.experiencia,
+            especialidades = demo.especialidades,
+            fotoResId = demo.fotoResId,
+            rating = demo.rating,
+            tipo = demo.tipo,
+            servicios = serviciosDelCuidador,
+            tarifaMinima = tarifaMinima,
+            disponible = demo.disponible,
+            premium = demo.premium
+        )
     }
 }

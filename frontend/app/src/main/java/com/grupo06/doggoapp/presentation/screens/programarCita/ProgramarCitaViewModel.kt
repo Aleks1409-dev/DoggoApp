@@ -4,14 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.grupo06.doggoapp.data.repository.AgendaRepository
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
+import com.grupo06.doggoapp.domain.repository.CuidadorRepository
 import com.grupo06.doggoapp.data.repository.CuidadorResultado
 import com.grupo06.doggoapp.data.repository.ResultadoAgendar
 import com.grupo06.doggoapp.data.repository.ResultadoDisponibilidad
 import com.grupo06.doggoapp.domain.model.Servicio
 import com.grupo06.doggoapp.domain.model.Slot
-import com.grupo06.doggoapp.presentation.event.EventBus
-import com.grupo06.doggoapp.presentation.event.UiEvent
+import com.grupo06.doggoapp.presentation.events.EventBus
+import com.grupo06.doggoapp.presentation.events.UiEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow

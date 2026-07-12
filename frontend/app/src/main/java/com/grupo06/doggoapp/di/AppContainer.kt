@@ -1,27 +1,38 @@
 package com.grupo06.doggoapp.di
 
-import com.grupo06.doggoapp.data.remote.ApiService
-import com.grupo06.doggoapp.data.repository.AgendaRepository
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import android.content.Context
+import com.grupo06.doggoapp.presentation.viewmodel.InicioViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.LoginViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.PerfilViewModel
+import com.grupo06.doggoapp.presentation.viewmodel.RegistroViewModel
 
-class AppContainer {
+class AppContainer(context: Context) {
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private val networkModule: NetworkModule by lazy { NetworkModule(context) }
+    private val repositoryModule: RepositoryModule by lazy { RepositoryModule(networkModule) }
+    private val useCaseModule: UseCaseModule by lazy { UseCaseModule(repositoryModule) }
 
-    private val apiService: ApiService by lazy {
-        retrofit.create(ApiService::class.java)
+    val loginViewModel: LoginViewModel by lazy {
+        LoginViewModel(useCaseModule.tokenUseCases)
     }
 
-    val cuidadorRepository: CuidadorRepository by lazy {
-        CuidadorRepository(apiService)
+    val registroViewModel: RegistroViewModel by lazy {
+        RegistroViewModel(useCaseModule.tokenUseCases)
     }
 
-    val agendaRepository: AgendaRepository by lazy {
-        AgendaRepository(apiService)
+    val inicioViewModel: InicioViewModel by lazy {
+        InicioViewModel(useCaseModule.cuidadorUseCases)
+    }
+
+    val perfilViewModel: PerfilViewModel by lazy {
+        PerfilViewModel(useCaseModule.tokenUseCases)
+    }
+
+    val agendaRepository by lazy {
+        repositoryModule.agendaRepository
+    }
+
+    val cuidadorRepository by lazy {
+        repositoryModule.cuidadorRepository
     }
 }

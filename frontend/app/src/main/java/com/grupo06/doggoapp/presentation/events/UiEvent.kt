@@ -1,4 +1,4 @@
-package com.grupo06.doggoapp.presentation.event
+package com.grupo06.doggoapp.presentation.events
 
 sealed interface UiEvent {
     data class Success(val mensaje: String): UiEvent

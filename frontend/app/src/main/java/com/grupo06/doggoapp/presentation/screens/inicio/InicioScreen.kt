@@ -41,15 +41,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.grupo06.doggoapp.R
+import com.grupo06.doggoapp.di.AppContainer
 import com.grupo06.doggoapp.domain.model.Cuidador
+import com.grupo06.doggoapp.presentation.components.EmptyScreen
+import com.grupo06.doggoapp.presentation.components.LoadingScreen
+import com.grupo06.doggoapp.presentation.navigation.NavRutas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
-    viewModel: InicioViewModel,
-    onCuidadorClick: (String) -> Unit = {}
+    navHostController: NavHostController,
+    appContainer: AppContainer
 ) {
+    val viewModel = appContainer.inicioViewModel
     val uiState by viewModel.uiState.collectAsState()
     val filtros = uiState.filtros
     val colorFondo = Color(0xFFFCFBF8)
@@ -62,7 +68,6 @@ fun InicioScreen(
             .padding(horizontal = 20.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -80,7 +85,7 @@ fun InicioScreen(
                     Text("Miraflores, Lima", color = Color.Gray, fontSize = 14.sp)
                 }
                 Text(
-                    text = "Cuidadores cercanos",
+                    "Cuidadores cercanos",
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -119,8 +124,7 @@ fun InicioScreen(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White,
                     focusedIndicatorColor = colorVerde,
-                    unfocusedIndicatorColor = Color.LightGray,
-                    cursorColor = colorVerde
+                    unfocusedIndicatorColor = Color.LightGray
                 ),
                 modifier = Modifier
                     .weight(1f)
@@ -180,21 +184,13 @@ fun InicioScreen(
         ) {
             when (val estado = uiState.estado) {
                 is InicioEstado.Loading -> {
-                    CircularProgressIndicator(color = colorVerde)
+                    LoadingScreen(mensaje = "Buscando cuidadores...")
                 }
 
                 is InicioEstado.Empty -> {
-                    MensajeCentrado(
-                        icono = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.size(48.dp)
-                            )
-                        },
-                        titulo = "No hay resultados",
-                        subtitulo = "Prueba con otro texto de búsqueda o cambia los filtros."
+                    EmptyScreen(
+                        mensaje = "No hay resultados",
+                        icono = Icons.Default.Search
                     )
                 }
 
@@ -225,7 +221,9 @@ fun InicioScreen(
                         ) { cuidador ->
                             CuidadorCardReal(
                                 cuidador = cuidador,
-                                onClick = onCuidadorClick
+                                onClick = { sitterId ->
+                                    navHostController.navigate(NavRutas.cuidadorDetalle(sitterId))
+                                }
                             )
                         }
                     }
@@ -248,30 +246,6 @@ private fun IconButtonWithBackground(
         contentAlignment = Alignment.Center
     ) {
         content()
-    }
-}
-
-@Composable
-private fun MensajeCentrado(
-    icono: @Composable () -> Unit,
-    titulo: String,
-    subtitulo: String
-) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        icono()
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = titulo,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = subtitulo,
-            color = Color.Gray,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 32.dp)
-        )
     }
 }
 

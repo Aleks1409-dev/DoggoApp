@@ -1,15 +1,14 @@
 package com.grupo06.doggoapp.data.repository
 
 import android.util.Log
-import com.grupo06.doggoapp.data.remote.ApiService
+import com.grupo06.doggoapp.core.network.ApiService
+import com.grupo06.doggoapp.core.session.SessionManager
 import com.grupo06.doggoapp.data.remote.dto.CreateAppointmentRequestDto
-import com.grupo06.doggoapp.domain.model.SessionProvider
 import com.grupo06.doggoapp.domain.model.Slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.flow.flowOn
 import retrofit2.HttpException
 
 /**
@@ -30,7 +29,10 @@ sealed interface ResultadoAgendar {
     data class Error(val mensaje: String) : ResultadoAgendar
 }
 
-class AgendaRepository(private val apiService: ApiService) {
+class AgendaRepository(
+    private val apiService: ApiService,
+    private val sessionManager: SessionManager
+) {
 
     /**
      * Obtiene los slots disponibles de un cuidador.
@@ -43,14 +45,21 @@ class AgendaRepository(private val apiService: ApiService) {
 
         try {
             val response = withContext(Dispatchers.IO) { apiService.getSchedule(sitterId) }
-            val slots = response.daysAvailable.orEmpty().mapNotNull { dto ->
-                val fecha = dto.appointmentDate?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                val rango = dto.appointmentRange?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                Slot(fecha = fecha, rango = rango)
+            if (response.isSuccessful) {
+                val slots = response.body()?.daysAvailable.orEmpty().mapNotNull { dto ->
+                    val fecha = dto.appointmentDate?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    val rango = dto.appointmentRange?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                    Slot(fecha = fecha, rango = rango)
+                }
+                emit(ResultadoDisponibilidad.Exito(slots))
+            } else {
+                val mensaje = extraerMensajeError(response.errorBody()?.string())
+                    ?: "Error al consultar la disponibilidad"
+                emit(ResultadoDisponibilidad.Error(mensaje))
             }
-            emit(ResultadoDisponibilidad.Exito(slots))
         } catch (e: HttpException) {
-            val mensaje = extraerMensajeError(e) ?: "Error al consultar la disponibilidad"
+            val mensaje = extraerMensajeError(e.response()?.errorBody()?.string())
+                ?: "Error al consultar la disponibilidad"
             Log.e("AgendaRepository", "HTTP ${e.code()} obteniendo agenda: $mensaje", e)
             emit(ResultadoDisponibilidad.Error(mensaje))
         } catch (e: Exception) {
@@ -62,8 +71,7 @@ class AgendaRepository(private val apiService: ApiService) {
     /**
      * Crea una cita con el cuidador en el slot seleccionado.
      *
-     * El [client_id] proviene de [SessionProvider] hasta que se implemente la
-     * autenticación real en HU005.
+     * El [client_id] proviene del email almacenado en [SessionManager] tras el login.
      */
     fun agendarCita(
         sitterId: String,
@@ -73,23 +81,33 @@ class AgendaRepository(private val apiService: ApiService) {
         emit(ResultadoAgendar.Cargando)
 
         try {
+            val clientId = sessionManager.obtenerEmail()
+                ?: throw IllegalStateException("No hay sesión activa. Inicia sesión para reservar.")
+
             val request = CreateAppointmentRequestDto(
-                clientId = SessionProvider.clienteId,
+                clientId = clientId,
                 appointmentDate = fecha,
                 appointmentRange = rango
             )
             val response = withContext(Dispatchers.IO) { apiService.createAppointment(sitterId, request) }
-            val mensaje = response.message?.takeIf { it.isNotBlank() }
-                ?: "Cita agendada correctamente"
-            emit(
-                ResultadoAgendar.Exito(
-                    mensaje = mensaje,
-                    fecha = response.appointmentDate ?: fecha,
-                    rango = response.appointmentRange ?: rango
+            if (response.isSuccessful) {
+                val body = response.body()
+                val mensaje = body?.message?.takeIf { it.isNotBlank() }
+                    ?: "Cita agendada correctamente"
+                emit(
+                    ResultadoAgendar.Exito(
+                        mensaje = mensaje,
+                        fecha = body?.appointmentDate ?: fecha,
+                        rango = body?.appointmentRange ?: rango
+                    )
                 )
-            )
+            } else {
+                val mensaje = extraerMensajeError(response.errorBody()?.string())
+                    ?: "El día o el rango solicitado no está disponible"
+                emit(ResultadoAgendar.Error(mensaje))
+            }
         } catch (e: HttpException) {
-            val mensaje = extraerMensajeError(e)
+            val mensaje = extraerMensajeError(e.response()?.errorBody()?.string())
                 ?: "El día o el rango solicitado no está disponible"
             Log.e("AgendaRepository", "HTTP ${e.code()} agendando cita: $mensaje", e)
             emit(ResultadoAgendar.Error(mensaje))
@@ -99,12 +117,11 @@ class AgendaRepository(private val apiService: ApiService) {
         }
     }
 
-    private fun extraerMensajeError(e: HttpException): String? {
+    private fun extraerMensajeError(json: String?): String? {
         return try {
-            e.response()?.errorBody()?.string()?.let { json ->
-                // Extrae el valor del campo "error" si existe.
+            json?.let {
                 val regex = """"error"\s*:\s*"([^"]+)"""".toRegex()
-                regex.find(json)?.groupValues?.get(1)
+                regex.find(it)?.groupValues?.get(1)
             }
         } catch (_: Exception) {
             null

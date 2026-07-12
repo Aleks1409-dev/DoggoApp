@@ -3,7 +3,7 @@ package com.grupo06.doggoapp.presentation.screens.cuidadorDetalle
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
+import com.grupo06.doggoapp.domain.repository.CuidadorRepository
 import com.grupo06.doggoapp.data.repository.CuidadorResultado
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow

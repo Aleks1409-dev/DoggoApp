@@ -14,53 +14,85 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.grupo06.doggoapp.di.AppContainer
 import com.grupo06.doggoapp.presentation.screens.bienvenida.BienvenidaScreen
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleScreen
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleViewModel
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleViewModelFactory
 import com.grupo06.doggoapp.presentation.screens.inicio.InicioScreen
-import com.grupo06.doggoapp.presentation.screens.agenda.AgendaScreen
-import com.grupo06.doggoapp.presentation.screens.inicio.InicioViewModel
-import com.grupo06.doggoapp.presentation.screens.inicio.InicioViewModelFactory
+import com.grupo06.doggoapp.presentation.screens.login.LoginScreen
 import com.grupo06.doggoapp.presentation.screens.mensajes.MensajesScreen
 import com.grupo06.doggoapp.presentation.screens.perfil.PerfilScreen
 import com.grupo06.doggoapp.presentation.screens.programarCita.ProgramarCitaScreen
 import com.grupo06.doggoapp.presentation.screens.programarCita.ProgramarCitaViewModel
 import com.grupo06.doggoapp.presentation.screens.programarCita.ProgramarCitaViewModelFactory
+import com.grupo06.doggoapp.presentation.screens.registro.RegistroScreen
+import com.grupo06.doggoapp.presentation.screens.reserva.ReservarScreen
 
 @Composable
 fun AppNavigation(
     navHostController: NavHostController,
     paddingValues: PaddingValues,
-    appContainer: com.grupo06.doggoapp.di.AppContainer
-){
+    appContainer: AppContainer
+) {
     NavHost(
         navController = navHostController,
-        startDestination = NavRutas.INICIO,
+        startDestination = NavRutas.LOGIN,
         modifier = Modifier.padding(paddingValues)
-    ){
-        composable(NavRutas.BIENVENIDA){
-            BienvenidaScreen()
-        }
-        composable(NavRutas.INICIO) {
-            val viewModel: InicioViewModel = viewModel(
-                factory = InicioViewModelFactory(appContainer.cuidadorRepository)
-            )
-            InicioScreen(
-                viewModel = viewModel,
-                onCuidadorClick = { sitterId ->
-                    navHostController.navigate(NavRutas.cuidadorDetalle(sitterId))
+    ) {
+        composable(NavRutas.LOGIN) {
+            LoginScreen(
+                appContainer = appContainer,
+                onLoginSuccess = {
+                    navHostController.navigate(NavRutas.INICIO) {
+                        popUpTo(NavRutas.LOGIN) { inclusive = true }
+                    }
+                },
+                onCrearCuentaClick = {
+                    navHostController.navigate(NavRutas.REGISTRO)
                 }
             )
         }
-        composable(NavRutas.AGENDA){
-            AgendaScreen()
+        composable(NavRutas.REGISTRO) {
+            RegistroScreen(
+                appContainer = appContainer,
+                onRegistroSuccess = {
+                    navHostController.popBackStack()
+                },
+                onBackToLoginClick = {
+                    navHostController.popBackStack()
+                }
+            )
         }
-        composable(NavRutas.MENSAJES){
+        composable(NavRutas.BIENVENIDA) {
+            BienvenidaScreen()
+        }
+        composable(NavRutas.INICIO) {
+            InicioScreen(
+                navHostController = navHostController,
+                appContainer = appContainer
+            )
+        }
+        composable(NavRutas.AGENDA) {
+            ReservarScreen(
+                onBackClick = { navHostController.popBackStack() },
+                onConfirmarClick = {
+                    navHostController.navigate(NavRutas.INICIO)
+                }
+            )
+        }
+        composable(NavRutas.MENSAJES) {
             MensajesScreen()
         }
-        composable(NavRutas.PERFIL){
-            PerfilScreen()
+        composable(NavRutas.PERFIL) {
+            PerfilScreen(
+                appContainer = appContainer,
+                onLogoutSuccess = {
+                    navHostController.navigate(NavRutas.LOGIN) {
+                        popUpTo(0)
+                    }
+                }
+            )
         }
         composable(
             route = NavRutas.CUIDADOR_DETALLE,
@@ -68,7 +100,10 @@ fun AppNavigation(
         ) { backStackEntry ->
             val sitterId = backStackEntry.arguments?.getString("sitterId")
             if (sitterId == null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("Error: cuidador no encontrado")
                 }
                 return@composable
@@ -79,8 +114,8 @@ fun AppNavigation(
             CuidadorDetalleScreen(
                 viewModel = viewModel,
                 onVolver = { navHostController.popBackStack() },
-                onReservar = { sitterId ->
-                    navHostController.navigate(NavRutas.programarCita(sitterId))
+                onReservar = { id ->
+                    navHostController.navigate(NavRutas.programarCita(id))
                 }
             )
         }
@@ -90,7 +125,10 @@ fun AppNavigation(
         ) { backStackEntry ->
             val sitterId = backStackEntry.arguments?.getString("sitterId")
             if (sitterId == null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     Text("Error: cuidador no encontrado")
                 }
                 return@composable

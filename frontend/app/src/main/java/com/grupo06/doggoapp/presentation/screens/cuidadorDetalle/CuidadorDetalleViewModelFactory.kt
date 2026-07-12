@@ -2,7 +2,7 @@ package com.grupo06.doggoapp.presentation.screens.cuidadorDetalle
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.grupo06.doggoapp.data.repository.CuidadorRepository
+import com.grupo06.doggoapp.domain.repository.CuidadorRepository
 
 class CuidadorDetalleViewModelFactory(
     private val sitterId: String,
