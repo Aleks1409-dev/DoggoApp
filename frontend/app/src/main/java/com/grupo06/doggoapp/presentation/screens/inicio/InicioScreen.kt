@@ -1,8 +1,8 @@
 package com.grupo06.doggoapp.presentation.screens.inicio
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -11,11 +11,23 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,14 +38,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.grupo06.doggoapp.R
+import com.grupo06.doggoapp.domain.model.Cuidador
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioScreen(viewModel: InicioViewModel) {
-    val cuidadores by viewModel.cuidadores.collectAsState()
+fun InicioScreen(
+    viewModel: InicioViewModel,
+    onCuidadorClick: (String) -> Unit = {}
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val filtros = uiState.filtros
     val colorFondo = Color(0xFFFCFBF8)
     val colorVerde = Color(0xFF10B981)
 
@@ -52,7 +70,12 @@ fun InicioScreen(viewModel: InicioViewModel) {
         ) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, contentDescription = "Ubicación", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Ubicación",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(16.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Miraflores, Lima", color = Color.Gray, fontSize = 14.sp)
                 }
@@ -76,12 +99,21 @@ fun InicioScreen(viewModel: InicioViewModel) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                placeholder = { Text("Buscar...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                value = filtros.busqueda,
+                onValueChange = viewModel::buscar,
+                placeholder = { Text("Buscar cuidador...") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar"
+                    )
+                },
+                singleLine = true,
                 shape = RoundedCornerShape(24.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.White,
@@ -94,63 +126,170 @@ fun InicioScreen(viewModel: InicioViewModel) {
                     .weight(1f)
                     .height(52.dp)
             )
+
             Spacer(modifier = Modifier.width(12.dp))
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(Color.White, RoundedCornerShape(24.dp))
-            ) {
-                Icon(Icons.Default.Tune, contentDescription = "Filtros", tint = Color.Black)
-            }
+
+            IconButtonWithBackground(
+                onClick = { viewModel.ordenarPorPrecio(!filtros.ordenAscendente) },
+                content = {
+                    Icon(
+                        imageVector = if (filtros.ordenAscendente) {
+                            Icons.Default.KeyboardArrowUp
+                        } else {
+                            Icons.Default.KeyboardArrowDown
+                        },
+                        contentDescription = if (filtros.ordenAscendente) {
+                            "Ordenar de menor a mayor precio"
+                        } else {
+                            "Ordenar de mayor a menor precio"
+                        },
+                        tint = Color.Black
+                    )
+                }
+            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        val categorias = listOf("Todos", "Paseos", "Hospedaje", "Cuidado diurno")
+        val opcionesServicios = listOf("Todos") + uiState.serviciosDisponibles
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(categorias) { cat ->
-                val isSelected = cat == "Todos"
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isSelected) Color.Black else Color.White,
-                    border = if (!isSelected) BorderStroke(1.dp, Color.LightGray) else null,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = cat,
-                        color = if (isSelected) Color.White else Color.Black,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
+            items(opcionesServicios, key = { it }) { opcion ->
+                val seleccionado = when (opcion) {
+                    "Todos" -> filtros.servicioSeleccionado == null
+                    else -> filtros.servicioSeleccionado == opcion
                 }
+                FilterChip(
+                    selected = seleccionado,
+                    onClick = {
+                        viewModel.filtrarPorServicio(
+                            if (opcion == "Todos") null else opcion
+                        )
+                    },
+                    label = { Text(opcion) }
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 80.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center
         ) {
-            items(cuidadores) { cuidador ->
-                CuidadorCardReal(cuidador = cuidador)
+            when (val estado = uiState.estado) {
+                is InicioEstado.Loading -> {
+                    CircularProgressIndicator(color = colorVerde)
+                }
+
+                is InicioEstado.Empty -> {
+                    MensajeCentrado(
+                        icono = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                tint = Color.Gray,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        },
+                        titulo = "No hay resultados",
+                        subtitulo = "Prueba con otro texto de búsqueda o cambia los filtros."
+                    )
+                }
+
+                is InicioEstado.Error -> {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = estado.mensaje,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = viewModel::reintentar) {
+                            Text("Reintentar")
+                        }
+                    }
+                }
+
+                is InicioEstado.Success -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 80.dp)
+                    ) {
+                        items(
+                            items = estado.cuidadores,
+                            key = { it.id }
+                        ) { cuidador ->
+                            CuidadorCardReal(
+                                cuidador = cuidador,
+                                onClick = onCuidadorClick
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun CuidadorCardMock(
-    nombre: String, ubicacion: String, rating: String, reviews: String,
-    precio: String, tipo: String, badgeText: String, badgeColor: Color,
-    imagenResId: Int
+private fun IconButtonWithBackground(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
 ) {
+    Box(
+        modifier = Modifier
+            .size(52.dp)
+            .background(Color.White, RoundedCornerShape(24.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun MensajeCentrado(
+    icono: @Composable () -> Unit,
+    titulo: String,
+    subtitulo: String
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        icono()
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = titulo,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = subtitulo,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
+    }
+}
+
+@Composable
+fun CuidadorCardReal(
+    cuidador: Cuidador,
+    onClick: (String) -> Unit = {}
+) {
+    val imagen = cuidador.fotoResId ?: R.drawable.messi
+    val colorVerde = Color(0xFF10B981)
+
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(cuidador.id) }
     ) {
         Row(modifier = Modifier.padding(12.dp)) {
             Box(
@@ -159,8 +298,8 @@ fun CuidadorCardMock(
                     .clip(RoundedCornerShape(16.dp))
             ) {
                 Image(
-                    painter = painterResource(id = imagenResId),
-                    contentDescription = "Foto de $nombre",
+                    painter = painterResource(id = imagen),
+                    contentDescription = "Foto de ${cuidador.nombre}",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -174,10 +313,10 @@ fun CuidadorCardMock(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
-                            Icons.Default.FavoriteBorder,
+                            imageVector = Icons.Default.FavoriteBorder,
                             contentDescription = "Favorito",
                             modifier = Modifier.size(16.dp),
-                            tint = Color(0xFF10B981)
+                            tint = colorVerde
                         )
                     }
                 }
@@ -185,23 +324,66 @@ fun CuidadorCardMock(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Column {
-                Text(nombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = cuidador.nombre,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, "", tint = Color.Gray, modifier = Modifier.size(14.dp))
-                    Text(ubicacion, color = Color.Gray, fontSize = 12.sp)
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = cuidador.ubicacion,
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, "", tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
-                    Text(" $rating ", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                    Text(reviews, color = Color.Gray, fontSize = 12.sp)
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = " ${cuidador.rating} ",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = "(${cuidador.servicios.size} servicios)",
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                Surface(shape = RoundedCornerShape(8.dp), color = badgeColor) {
-                    Text(badgeText, color = Color.Black, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                val especialidadesTexto = cuidador.especialidades
+                    .joinToString(
+                        ", ",
+                        prefix = "",
+                        postfix = ""
+                    )
+                    .takeIf { it.isNotBlank() }
+                    ?: "Sin especialidades registradas"
+
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFFD4E6F1)
+                ) {
+                    Text(
+                        text = especialidadesTexto,
+                        color = Color.Black,
+                        fontSize = 10.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -211,28 +393,23 @@ fun CuidadorCardMock(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    Text(tipo, color = Color.Gray, fontSize = 12.sp)
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(precio, color = Color(0xFF10B981), fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                        Text(" / noche", color = Color.Gray, fontSize = 12.sp)
-                    }
+                    Text(
+                        text = cuidador.tipo,
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = if (cuidador.tarifaMinima != null) {
+                            "S/ %.2f".format(cuidador.tarifaMinima)
+                        } else {
+                            "Tarifa no disponible"
+                        },
+                        color = colorVerde,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
                 }
             }
         }
     }
-}
-
-@Composable
-fun CuidadorCardReal(cuidador: com.grupo06.doggoapp.domain.model.Cuidador) {
-    CuidadorCardMock(
-        nombre = cuidador.nombre,
-        ubicacion = cuidador.ubicacion,
-        rating = cuidador.rating.toString(),
-        reviews = "(Verificado)",
-        precio = "S/ ${cuidador.precio}",
-        tipo = cuidador.tipo,
-        badgeText = "En línea",
-        badgeColor = Color(0xFFD4E6F1),
-        imagenResId = R.drawable.messi
-    )
 }

@@ -1,6 +1,7 @@
 package com.grupo06.doggoapp.di
 
 import com.grupo06.doggoapp.data.remote.ApiService
+import com.grupo06.doggoapp.data.repository.AgendaRepository
 import com.grupo06.doggoapp.data.repository.CuidadorRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -8,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class AppContainer {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://2ulqi5yey6.execute-api.us-east-1.amazonaws.com/default/")
+        .baseUrl("https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -18,5 +19,9 @@ class AppContainer {
 
     val cuidadorRepository: CuidadorRepository by lazy {
         CuidadorRepository(apiService)
+    }
+
+    val agendaRepository: AgendaRepository by lazy {
+        AgendaRepository(apiService)
     }
 }

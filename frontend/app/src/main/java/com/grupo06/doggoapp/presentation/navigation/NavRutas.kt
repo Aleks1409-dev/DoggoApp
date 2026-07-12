@@ -6,6 +6,11 @@ object NavRutas {
     const val AGENDA = "agenda"
     const val MENSAJES = "mensajes"
     const val PERFIL = "perfil"
+    const val CUIDADOR_DETALLE = "cuidador/{sitterId}"
+    const val PROGRAMAR_CITA = "programar-cita/{sitterId}"
+
+    fun cuidadorDetalle(sitterId: String): String = "cuidador/$sitterId"
+    fun programarCita(sitterId: String): String = "programar-cita/$sitterId"
 
     fun getTitulo(ruta: String?): String {
         return when {

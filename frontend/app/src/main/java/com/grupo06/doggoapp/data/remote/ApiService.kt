@@ -1,22 +1,35 @@
 package com.grupo06.doggoapp.data.remote
 
-import com.grupo06.doggoapp.domain.model.ApiData
-import com.grupo06.doggoapp.domain.model.Cuidador
-import retrofit2.http.*
+import com.grupo06.doggoapp.data.remote.dto.CreateAppointmentRequestDto
+import com.grupo06.doggoapp.data.remote.dto.CreateAppointmentResponseDto
+import com.grupo06.doggoapp.data.remote.dto.ScheduleResponseDto
+import com.grupo06.doggoapp.data.remote.dto.ServiceDto
+import com.grupo06.doggoapp.data.remote.dto.SittersResponseDto
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Path
 
+/**
+ * Contrato de los endpoints disponibles del backend DoggoApp.
+ *
+ * NOTA: Los endpoints antiguos de `CuidadoresApi` fueron eliminados porque no existen
+ * en el backend real. Ahora se consumen `/sitters` y `/services`.
+ */
 interface ApiService {
-    @GET("CuidadoresApi")
-    suspend fun getCuidadores(): Map<String, Any>
 
-    @GET("CuidadoresApi/{id}")
-    suspend fun getCuidadorById(@Path("id") id: String): Cuidador
+    @GET("sitters")
+    suspend fun getSitters(): SittersResponseDto
 
-    @POST("CuidadoresApi")
-    suspend fun addCuidador(@Body cuidador: Cuidador): Cuidador
+    @GET("services")
+    suspend fun getServices(): List<ServiceDto>
 
-    @PUT("CuidadoresApi/{id}")
-    suspend fun updateCuidador(@Path("id") id: String, @Body cuidador: Cuidador): Cuidador
+    @GET("schedule/{sitterId}")
+    suspend fun getSchedule(@Path("sitterId") sitterId: String): ScheduleResponseDto
 
-    @DELETE("CuidadoresApi/{id}")
-    suspend fun deleteCuidador(@Path("id") id: String)
+    @POST("schedule/{sitterId}")
+    suspend fun createAppointment(
+        @Path("sitterId") sitterId: String,
+        @Body request: CreateAppointmentRequestDto
+    ): CreateAppointmentResponseDto
 }
