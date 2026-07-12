@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.grupo06.doggoapp.R
 import com.grupo06.doggoapp.di.AppContainer
 import com.grupo06.doggoapp.presentation.components.EmptyScreen
@@ -35,7 +36,10 @@ import com.grupo06.doggoapp.presentation.components.LoadingScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InicioScreen(appContainer: AppContainer) {
+fun InicioScreen(
+    navHostController: NavHostController,
+    appContainer: AppContainer
+) {
     val viewModel = appContainer.inicioViewModel
     val uiState by viewModel.uiState.collectAsState()
     val cuidadores = uiState.cuidadores
@@ -49,7 +53,6 @@ fun InicioScreen(appContainer: AppContainer) {
             .padding(horizontal = 20.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -57,22 +60,14 @@ fun InicioScreen(appContainer: AppContainer) {
         ) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, contentDescription = "Ubicación", tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Miraflores, Lima", color = Color.Gray, fontSize = 14.sp)
                 }
-                Text(
-                    text = "Cuidadores cercanos",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
+                Text("Cuidadores cercanos", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.Black)
             }
             Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(colorVerde.copy(alpha = 0.2f)),
+                modifier = Modifier.size(50.dp).clip(CircleShape).background(colorVerde.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text("P", color = colorVerde, fontWeight = FontWeight.Bold, fontSize = 20.sp)
@@ -83,55 +78,19 @@ fun InicioScreen(appContainer: AppContainer) {
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                placeholder = { Text("Buscar...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                value = "", onValueChange = {}, placeholder = { Text("Buscar...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = colorVerde,
-                    unfocusedIndicatorColor = Color.LightGray,
-                    cursorColor = colorVerde
-                ),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(52.dp)
+                colors = TextFieldDefaults.colors(focusedContainerColor = Color.White, unfocusedContainerColor = Color.White, focusedIndicatorColor = colorVerde, unfocusedIndicatorColor = Color.LightGray),
+                modifier = Modifier.weight(1f).height(52.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .size(52.dp)
-                    .background(Color.White, RoundedCornerShape(24.dp))
-            ) {
-                Icon(Icons.Default.Tune, contentDescription = "Filtros", tint = Color.Black)
+            IconButton(onClick = {}, modifier = Modifier.size(52.dp).background(Color.White, RoundedCornerShape(24.dp))) {
+                Icon(Icons.Default.Tune, contentDescription = null, tint = Color.Black)
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-
-        val categorias = listOf("Todos", "Paseos", "Hospedaje", "Cuidado diurno")
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(categorias) { cat ->
-                val isSelected = cat == "Todos"
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (isSelected) Color.Black else Color.White,
-                    border = if (!isSelected) BorderStroke(1.dp, Color.LightGray) else null,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                ) {
-                    Text(
-                        text = cat,
-                        color = if (isSelected) Color.White else Color.Black,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         when {
             uiState.isLoading -> LoadingScreen(mensaje = "Buscando cuidadores...")
@@ -143,7 +102,15 @@ fun InicioScreen(appContainer: AppContainer) {
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
                     items(cuidadores) { cuidador ->
-                        CuidadorCardReal(cuidador = cuidador)
+                        Surface(
+                            onClick = {
+                                // Usamos un id quemado "123" porque el modelo actual no tiene id
+                                navHostController.navigate("detalle_screen/123")
+                            },
+                            color = Color.Transparent
+                        ) {
+                            CuidadorCardReal(cuidador = cuidador)
+                        }
                     }
                 }
             }
@@ -171,25 +138,18 @@ fun CuidadorCardMock(
             ) {
                 Image(
                     painter = painterResource(id = imagenResId),
-                    contentDescription = "Foto de $nombre",
+                    contentDescription = "Foto",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
+                // Icono de favorito
                 Surface(
                     shape = CircleShape,
                     color = Color.White.copy(alpha = 0.8f),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                        .size(28.dp)
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp).size(28.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorito",
-                            modifier = Modifier.size(16.dp),
-                            tint = Color(0xFF10B981)
-                        )
+                        Icon(Icons.Default.FavoriteBorder, null, modifier = Modifier.size(16.dp), tint = Color(0xFF10B981))
                     }
                 }
             }
@@ -200,12 +160,12 @@ fun CuidadorCardMock(
                 Text(nombre, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, "", tint = Color.Gray, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                     Text(ubicacion, color = Color.Gray, fontSize = 12.sp)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, "", tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.Star, null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
                     Text(" $rating ", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     Text(reviews, color = Color.Gray, fontSize = 12.sp)
                 }

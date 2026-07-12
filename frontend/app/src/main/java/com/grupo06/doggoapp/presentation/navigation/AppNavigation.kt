@@ -9,7 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.grupo06.doggoapp.presentation.screens.bienvenida.BienvenidaScreen
 import com.grupo06.doggoapp.presentation.screens.inicio.InicioScreen
-import com.grupo06.doggoapp.presentation.screens.agenda.AgendaScreen
+import com.grupo06.doggoapp.presentation.screens.reserva.ReservarScreen
 import com.grupo06.doggoapp.presentation.screens.login.LoginScreen
 import com.grupo06.doggoapp.presentation.screens.mensajes.MensajesScreen
 import com.grupo06.doggoapp.presentation.screens.perfil.PerfilScreen
@@ -54,10 +54,20 @@ fun AppNavigation(
             BienvenidaScreen()
         }
         composable(NavRutas.INICIO) {
-            InicioScreen(appContainer = appContainer)
+            InicioScreen(
+                navHostController = navHostController,
+                appContainer = appContainer
+            )
         }
-        composable(NavRutas.AGENDA){
-            AgendaScreen()
+        composable("detalle_screen/{sitterId}") {
+        }
+        composable(NavRutas.AGENDA) {
+            ReservarScreen(
+                onBackClick = { navHostController.popBackStack() },
+                onConfirmarClick = {
+                    navHostController.navigate(NavRutas.INICIO)
+                }
+            )
         }
         composable(NavRutas.MENSAJES){
             MensajesScreen()

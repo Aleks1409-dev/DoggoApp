@@ -8,10 +8,25 @@ class CuidadorRepositoryImpl(
     private val remoteDataSource: RemoteDataSource
 ) : CuidadorRepository {
 
-    // The CuidadoresApi endpoint's real JSON shape isn't confirmed against the deployed
-    // backend yet (see CLAUDE.md "Known gap"), so parsing is deliberately deferred here.
     override suspend fun getCuidadores(): List<Cuidador> {
-        remoteDataSource.getCuidadores()
-        return emptyList()
+        val response = remoteDataSource.getCuidadores()
+        val listaCuidadores = mutableListOf<Cuidador>()
+
+        if (response != null && response.containsKey("sitters")) {
+            val sittersList = response["sitters"] as? List<Map<String, Any>>
+
+            sittersList?.forEach { map ->
+                listaCuidadores.add(
+                    Cuidador(
+                        nombre = map["name"]?.toString() ?: "Sin Nombre",
+                        ubicacion = "Lima",
+                        rating = 5.0,
+                        precio = 30,
+                        tipo = "Paseo"
+                    )
+                )
+            }
+        }
+        return listaCuidadores
     }
 }

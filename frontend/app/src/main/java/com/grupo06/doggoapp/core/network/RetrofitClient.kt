@@ -1,7 +1,6 @@
 package com.grupo06.doggoapp.core.network
 
 import com.grupo06.doggoapp.core.session.SessionManager
-import com.grupo06.doggoapp.core.utils.Constantes
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,7 +13,7 @@ class RetrofitClient(sessionManager: SessionManager) {
 
     val api: ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl(Constantes.BASE_URL)
+            .baseUrl("https://rg65zent76.execute-api.us-east-1.amazonaws.com/api/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
