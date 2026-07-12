@@ -27,4 +27,12 @@ class AppContainer(context: Context) {
     val perfilViewModel: PerfilViewModel by lazy {
         PerfilViewModel(useCaseModule.tokenUseCases)
     }
+
+    val agendaRepository by lazy {
+        repositoryModule.agendaRepository
+    }
+
+    val cuidadorRepository by lazy {
+        repositoryModule.cuidadorRepository
+    }
 }

@@ -13,20 +13,31 @@ import com.grupo06.doggoapp.presentation.navigation.BotonNavItem
 import com.grupo06.doggoapp.presentation.navigation.NavRutas
 
 @Composable
-fun AppBottomBar(navHostController: NavHostController){
-    val opciones = listOf(BotonNavItem.Inicio, BotonNavItem.Agenda, BotonNavItem.Mensajes, BotonNavItem.Perfil)
+fun AppBottomBar(navHostController: NavHostController) {
+    val opciones = listOf(
+        BotonNavItem.Inicio,
+        BotonNavItem.Agenda,
+        BotonNavItem.Mensajes,
+        BotonNavItem.Perfil
+    )
     val rutaSel = navHostController.currentBackStackEntryAsState().value?.destination?.route
 
-    if (rutaSel == NavRutas.BIENVENIDA || rutaSel == NavRutas.LOGIN || rutaSel == NavRutas.REGISTRO) return
+    val ocultar = rutaSel == NavRutas.BIENVENIDA ||
+        rutaSel == NavRutas.LOGIN ||
+        rutaSel == NavRutas.REGISTRO ||
+        rutaSel?.startsWith("cuidador/") == true ||
+        rutaSel?.startsWith("programar-cita/") == true
+
+    if (ocultar) return
 
     NavigationBar(
         containerColor = Color.White
-    ){
+    ) {
         opciones.forEach { item ->
             NavigationBarItem(
                 selected = rutaSel == item.ruta,
                 onClick = { navHostController.navigate(item.ruta) },
-                icon = { Icon(item.icono,"") },
+                icon = { Icon(item.icono, "") },
                 label = { Text(item.titulo) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Color.White,

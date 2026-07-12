@@ -15,3 +15,11 @@
 local.properties
 .claude
 guia
+
+# OpenCode configuration
+.opencode/
+AGENTS.md
+DECISIONS.md
+PROJECT_STATE.md
+TASKS.md
+opencode.json

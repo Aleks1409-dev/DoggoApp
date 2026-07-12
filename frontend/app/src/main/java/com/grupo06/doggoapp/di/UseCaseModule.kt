@@ -1,6 +1,7 @@
 package com.grupo06.doggoapp.di
 
 import com.grupo06.doggoapp.domain.usecase.CuidadorUseCases
+import com.grupo06.doggoapp.domain.usecase.GetCuidadoresFlowUseCase
 import com.grupo06.doggoapp.domain.usecase.GetCuidadoresUseCase
 import com.grupo06.doggoapp.domain.usecase.LoginUseCase
 import com.grupo06.doggoapp.domain.usecase.LogoutUseCase
@@ -18,6 +19,9 @@ class UseCaseModule(private val repositoryModule: RepositoryModule) {
     }
 
     val cuidadorUseCases: CuidadorUseCases by lazy {
-        CuidadorUseCases(getCuidadores = GetCuidadoresUseCase(repositoryModule.cuidadorRepository))
+        CuidadorUseCases(
+            getCuidadores = GetCuidadoresUseCase(repositoryModule.cuidadorRepository),
+            getCuidadoresFlow = GetCuidadoresFlowUseCase(repositoryModule.cuidadorRepository)
+        )
     }
 }

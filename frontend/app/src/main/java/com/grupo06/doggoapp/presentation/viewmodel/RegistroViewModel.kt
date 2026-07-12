@@ -4,8 +4,8 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.grupo06.doggoapp.domain.usecase.TokenUseCases
-import com.grupo06.doggoapp.presentation.event.EventBus
-import com.grupo06.doggoapp.presentation.event.UiEvent
+import com.grupo06.doggoapp.presentation.events.EventBus
+import com.grupo06.doggoapp.presentation.events.UiEvent
 import com.grupo06.doggoapp.presentation.screens.registro.RegistroUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

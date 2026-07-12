@@ -1,4 +1,4 @@
-package com.grupo06.doggoapp.presentation.event
+package com.grupo06.doggoapp.presentation.events
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
