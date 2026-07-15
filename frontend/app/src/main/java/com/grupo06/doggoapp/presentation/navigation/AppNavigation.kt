@@ -19,6 +19,7 @@ import com.grupo06.doggoapp.presentation.screens.bienvenida.BienvenidaScreen
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleScreen
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleViewModel
 import com.grupo06.doggoapp.presentation.screens.cuidadorDetalle.CuidadorDetalleViewModelFactory
+import com.grupo06.doggoapp.presentation.screens.chat.ChatScreen
 import com.grupo06.doggoapp.presentation.screens.inicio.InicioScreen
 import com.grupo06.doggoapp.presentation.screens.login.LoginScreen
 import com.grupo06.doggoapp.presentation.screens.mensajes.MensajesScreen
@@ -82,7 +83,7 @@ fun AppNavigation(
             )
         }
         composable(NavRutas.MENSAJES) {
-            MensajesScreen()
+            MensajesScreen(navHostController = navHostController)
         }
         composable(NavRutas.PERFIL) {
             PerfilScreen(
@@ -116,6 +117,9 @@ fun AppNavigation(
                 onVolver = { navHostController.popBackStack() },
                 onReservar = { id ->
                     navHostController.navigate(NavRutas.programarCita(id))
+                },
+                onMensaje = { id ->
+                    navHostController.navigate(NavRutas.chat(id))
                 }
             )
         }
@@ -142,6 +146,16 @@ fun AppNavigation(
             )
             ProgramarCitaScreen(
                 viewModel = viewModel,
+                onVolver = { navHostController.popBackStack() }
+            )
+        }
+        composable(
+            route = NavRutas.CHAT,
+            arguments = listOf(navArgument("sitterId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val sitterId = backStackEntry.arguments?.getString("sitterId") ?: ""
+            ChatScreen(
+                sitterId = sitterId,
                 onVolver = { navHostController.popBackStack() }
             )
         }

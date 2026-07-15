@@ -7,6 +7,7 @@ import com.grupo06.doggoapp.data.remote.dto.toDomain
 import com.grupo06.doggoapp.domain.model.Cuidador
 import com.grupo06.doggoapp.domain.model.Servicio
 import com.grupo06.doggoapp.domain.repository.CuidadorRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -89,6 +90,7 @@ class CuidadorRepositoryImpl(
                 emit(CuidadoresResultado.Exito(cuidadores, serviciosDisponibles))
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e("CuidadorRepositoryImpl", "Error al cargar cuidadores: ${e.message}", e)
             emit(CuidadoresResultado.Error(e))
         }

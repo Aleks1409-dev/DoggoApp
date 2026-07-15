@@ -5,6 +5,7 @@ import com.grupo06.doggoapp.core.network.ApiService
 import com.grupo06.doggoapp.core.session.SessionManager
 import com.grupo06.doggoapp.data.remote.dto.CreateAppointmentRequestDto
 import com.grupo06.doggoapp.domain.model.Slot
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -63,6 +64,7 @@ class AgendaRepository(
             Log.e("AgendaRepository", "HTTP ${e.code()} obteniendo agenda: $mensaje", e)
             emit(ResultadoDisponibilidad.Error(mensaje))
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e("AgendaRepository", "Error de red obteniendo agenda: ${e.message}", e)
             emit(ResultadoDisponibilidad.Error("Error de red. Verifica tu conexión e inténtalo de nuevo."))
         }
@@ -112,6 +114,7 @@ class AgendaRepository(
             Log.e("AgendaRepository", "HTTP ${e.code()} agendando cita: $mensaje", e)
             emit(ResultadoAgendar.Error(mensaje))
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e("AgendaRepository", "Error de red agendando cita: ${e.message}", e)
             emit(ResultadoAgendar.Error("Error de red. Verifica tu conexión e inténtalo de nuevo."))
         }

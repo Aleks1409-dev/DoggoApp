@@ -10,9 +10,11 @@ object NavRutas {
     const val PERFIL = "perfil"
     const val CUIDADOR_DETALLE = "cuidador/{sitterId}"
     const val PROGRAMAR_CITA = "programar-cita/{sitterId}"
+    const val CHAT = "chat/{sitterId}"
 
     fun cuidadorDetalle(sitterId: String): String = "cuidador/$sitterId"
     fun programarCita(sitterId: String): String = "programar-cita/$sitterId"
+    fun chat(sitterId: String): String = "chat/$sitterId"
 
     fun getTitulo(ruta: String?): String {
         return when {
@@ -23,6 +25,7 @@ object NavRutas {
             ruta == AGENDA -> "Mi Agenda"
             ruta == MENSAJES -> "Mensajes"
             ruta == PERFIL -> "Mi Perfil"
+            ruta?.startsWith("chat") == true -> "Chat"
             else -> "DoggoApp"
         }
     }

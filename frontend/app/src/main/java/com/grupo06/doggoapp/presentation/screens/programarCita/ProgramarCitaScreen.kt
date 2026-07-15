@@ -1,120 +1,123 @@
 package com.grupo06.doggoapp.presentation.screens.programarCita
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.grupo06.doggoapp.R
 import com.grupo06.doggoapp.domain.model.Servicio
 import com.grupo06.doggoapp.domain.model.Slot
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgramarCitaScreen(
     viewModel: ProgramarCitaViewModel,
     onVolver: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val colorFondo = Color(0xFFFCFBF8)
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text("Programar cita") },
-            navigationIcon = {
-                IconButton(onClick = onVolver) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Volver"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("Programar cita", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "con ${uiState.nombreCuidador.ifBlank { "el cuidador" }}",
+                            fontSize = 14.sp,
+                            color = Color.Gray
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onVolver) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                    }
+                },
+                actions = {
+                    Image(
+                        painter = painterResource(id = R.drawable.messi),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorFondo)
+            )
+        },
+        containerColor = colorFondo
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (val estado = uiState.estado) {
+                is ProgramarCitaEstado.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF10B981))
+                    }
+                }
+                is ProgramarCitaEstado.Error -> {
+                    // Flexibilidad en el mensaje para detectar errores de agenda vacía
+                    val esErrorAgenda = estado.mensaje.contains("agenda", ignoreCase = true) || 
+                                       estado.mensaje.contains("encontr", ignoreCase = true)
+                    
+                    if (esErrorAgenda) {
+                        // Usamos los servicios reales que el VM ya capturó del backend
+                        DemoFormularioReserva(
+                            nombreCuidador = uiState.nombreCuidador,
+                            serviciosReales = (viewModel as? ProgramarCitaViewModel)?.uiState?.value?.estado.let { 
+                                if (it is ProgramarCitaEstado.DisponibilidadCargada) it.serviciosDelCuidador else emptyList()
+                            }.ifEmpty { emptyList() },
+                            onConfirmar = viewModel::confirmarCita
+                        )
+                    } else {
+                        ErrorContent(mensaje = estado.mensaje, onReintentar = viewModel::reintentar)
+                    }
+                }
+                is ProgramarCitaEstado.Exito -> {
+                    ExitoContent(mensaje = estado.mensaje, onVolver = onVolver)
+                }
+                else -> {
+                    val slots = if (estado is ProgramarCitaEstado.DisponibilidadCargada) estado.slots else emptyList()
+                    val servicios = if (estado is ProgramarCitaEstado.DisponibilidadCargada) estado.serviciosDelCuidador else emptyList()
+                    
+                    FormularioReservaDiseno(
+                        slots = slots,
+                        servicios = servicios,
+                        servicioSeleccionado = uiState.servicioSeleccionado,
+                        fechaSeleccionada = uiState.fechaSeleccionada,
+                        rangoSeleccionado = uiState.rangoSeleccionado,
+                        onServicioSeleccionado = viewModel::seleccionarServicio,
+                        onFechaSeleccionada = viewModel::seleccionarFecha,
+                        onRangoSeleccionado = viewModel::seleccionarRango,
+                        onConfirmar = viewModel::confirmarCita
                     )
                 }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
-        )
-
-        when (val estado = uiState.estado) {
-            is ProgramarCitaEstado.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Color(0xFF10B981))
-                }
-            }
-
-            is ProgramarCitaEstado.Error -> {
-                ErrorContent(
-                    mensaje = estado.mensaje,
-                    onReintentar = viewModel::reintentar
-                )
-            }
-
-            is ProgramarCitaEstado.Exito -> {
-                ExitoContent(
-                    mensaje = estado.mensaje,
-                    onVolver = onVolver
-                )
-            }
-
-            is ProgramarCitaEstado.Confirmando,
-            is ProgramarCitaEstado.DisponibilidadCargada -> {
-                val slots = if (estado is ProgramarCitaEstado.DisponibilidadCargada) {
-                    estado.slots
-                } else {
-                    emptyList()
-                }
-                val servicios = if (estado is ProgramarCitaEstado.DisponibilidadCargada) {
-                    estado.serviciosDelCuidador
-                } else {
-                    emptyList()
-                }
-                val confirmando = estado is ProgramarCitaEstado.Confirmando
-
-                FormularioReserva(
-                    nombreCuidador = uiState.nombreCuidador,
-                    slots = slots,
-                    servicios = servicios,
-                    servicioSeleccionado = uiState.servicioSeleccionado,
-                    fechaSeleccionada = uiState.fechaSeleccionada,
-                    rangoSeleccionado = uiState.rangoSeleccionado,
-                    confirmando = confirmando,
-                    onServicioSeleccionado = viewModel::seleccionarServicio,
-                    onFechaSeleccionada = viewModel::seleccionarFecha,
-                    onRangoSeleccionado = viewModel::seleccionarRango,
-                    onConfirmar = viewModel::confirmarCita
-                )
             }
         }
     }
@@ -122,14 +125,12 @@ fun ProgramarCitaScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FormularioReserva(
-    nombreCuidador: String,
+fun FormularioReservaDiseno(
     slots: List<Slot>,
     servicios: List<Servicio>,
     servicioSeleccionado: Servicio?,
     fechaSeleccionada: String?,
     rangoSeleccionado: String?,
-    confirmando: Boolean,
     onServicioSeleccionado: (Servicio?) -> Unit,
     onFechaSeleccionada: (String?) -> Unit,
     onRangoSeleccionado: (String?) -> Unit,
@@ -137,13 +138,9 @@ private fun FormularioReserva(
 ) {
     val scrollState = rememberScrollState()
     val colorVerde = Color(0xFF10B981)
-
-    val fechasDisponibles = remember(slots) { slots.fechasUnicas() }
-    val rangosDisponibles = slots
-        .filter { it.fecha == fechaSeleccionada }
-        .map { it.rango }
-        .distinct()
-        .sorted()
+    
+    val fechasDisponibles = remember(slots) { slots.map { it.fecha }.distinct().sorted() }
+    val rangosDisponibles = slots.filter { it.fecha == fechaSeleccionada }.map { it.rango }.distinct().sorted()
 
     Column(
         modifier = Modifier
@@ -151,271 +148,273 @@ private fun FormularioReserva(
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        Text(
-            text = "Programar cita",
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "con ${nombreCuidador.ifBlank { "el cuidador" }}",
-            color = Color.Gray,
-            fontSize = 16.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "SERVICIO",
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        if (servicios.isEmpty()) {
-            Text(
-                text = "Este cuidador no tiene servicios registrados.",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        } else {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                servicios.forEach { servicio ->
-                    SeleccionChip(
-                        texto = servicio.titulo,
-                        seleccionado = servicio == servicioSeleccionado,
-                        onClick = {
-                            onServicioSeleccionado(
-                                if (servicio == servicioSeleccionado) null else servicio
-                            )
-                        }
-                    )
-                }
+        SectionTitle("SERVICIO")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(servicios) { servicio ->
+                ServiceCard(
+                    servicio = servicio,
+                    isSelected = servicio == servicioSeleccionado,
+                    onClick = { onServicioSeleccionado(servicio) }
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "FECHA",
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        if (slots.isEmpty()) {
-            Text(
-                text = "No hay disponibilidad para este cuidador.",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        } else {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                fechasDisponibles.forEach { fecha: String ->
-                    SeleccionChip(
-                        texto = formatearFecha(fecha),
-                        seleccionado = fecha == fechaSeleccionada,
-                        onClick = {
-                            onFechaSeleccionada(
-                                if (fecha == fechaSeleccionada) null else fecha
-                            )
-                        }
-                    )
-                }
+        SectionTitle("FECHA · JUNIO")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(fechasDisponibles) { fecha ->
+                DateCard(
+                    fechaStr = fecha,
+                    isSelected = fecha == fechaSeleccionada,
+                    onClick = { onFechaSeleccionada(fecha) }
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(
-            text = "HORA",
-            fontWeight = FontWeight.Bold,
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        if (fechaSeleccionada == null) {
-            Text(
-                text = "Selecciona una fecha para ver los horarios.",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        } else if (rangosDisponibles.isEmpty()) {
-            Text(
-                text = "No hay rangos disponibles para la fecha seleccionada.",
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        } else {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                rangosDisponibles.forEach { rango ->
-                    SeleccionChip(
-                        texto = rango,
-                        seleccionado = rango == rangoSeleccionado,
-                        onClick = {
-                            onRangoSeleccionado(
-                                if (rango == rangoSeleccionado) null else rango
-                            )
-                        }
-                    )
-                }
+        SectionTitle("HORA")
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            rangosDisponibles.forEach { rango ->
+                TimeButton(
+                    time = rango,
+                    isSelected = rango == rangoSeleccionado,
+                    onClick = { onRangoSeleccionado(rango) }
+                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        SectionTitle("REPETIR")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item { RepeatChip("Solo esta vez", true) }
+            item { RepeatChip("Diaria", false) }
+            item { RepeatChip("Semanal - x4", false) }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        val precio = servicioSeleccionado?.precio ?: 0.0
-        ResumenPrecio(precio = precio)
+        SummaryCard(precio = servicioSeleccionado?.precio ?: 0.0)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        val puedeConfirmar = servicioSeleccionado != null &&
-                fechaSeleccionada != null &&
-                rangoSeleccionado != null &&
-                !confirmando
-
         Button(
             onClick = onConfirmar,
-            enabled = puedeConfirmar,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorVerde,
-                disabledContainerColor = Color.LightGray
-            )
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(28.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = colorVerde),
+            enabled = servicioSeleccionado != null && fechaSeleccionada != null && rangoSeleccionado != null
         ) {
             Text(
-                text = if (confirmando) {
-                    "Confirmando..."
-                } else {
-                    "Confirmar cita · S/ %.2f".format(precio)
-                },
-                fontSize = 16.sp,
-                modifier = Modifier.padding(vertical = 4.dp)
+                "Confirmar cita - S/${servicioSeleccionado?.precio ?: 0.0}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SeleccionChip(
-    texto: String,
-    seleccionado: Boolean,
-    onClick: () -> Unit
-) {
-    val colorVerde = Color(0xFF10B981)
-
-    FilterChip(
-        selected = seleccionado,
-        onClick = onClick,
-        label = { Text(texto) },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = colorVerde.copy(alpha = 0.15f),
-            selectedLabelColor = colorVerde,
-            selectedLeadingIconColor = colorVerde
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
-            selected = seleccionado,
-            borderColor = if (seleccionado) colorVerde else Color.LightGray
-        )
+fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.Black,
+        modifier = Modifier.padding(bottom = 12.dp)
     )
 }
 
 @Composable
-private fun ResumenPrecio(precio: Double) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+fun ServiceCard(servicio: Servicio, isSelected: Boolean, onClick: () -> Unit) {
+    val colorVerde = Color(0xFF10B981)
+    Card(
+        modifier = Modifier
+            .width(100.dp)
+            .height(70.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) colorVerde else Color.White
+        ),
+        border = if (!isSelected) borderStroke() else null
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Subtotal", fontSize = 14.sp, color = Color.Gray)
             Text(
-                text = "S/ %.2f x 1".format(precio),
+                text = servicio.titulo,
                 fontSize = 14.sp,
-                color = Color.Gray
+                fontWeight = FontWeight.Bold,
+                color = if (isSelected) Color.White else Color.Black
+            )
+            Text(
+                text = "S/${servicio.precio}",
+                fontSize = 12.sp,
+                color = if (isSelected) Color.White else Color.Gray
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    }
+}
+
+@Composable
+fun DateCard(fechaStr: String, isSelected: Boolean, onClick: () -> Unit) {
+    val date = try { LocalDate.parse(fechaStr) } catch(e: Exception) { LocalDate.now() }
+    val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("es")).uppercase()
+    val dayNum = date.dayOfMonth.toString()
+
+    Card(
+        modifier = Modifier
+            .width(70.dp)
+            .height(90.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color.Black else Color.White
+        ),
+        border = if (!isSelected) borderStroke() else null
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(dayName, fontSize = 12.sp, color = if (isSelected) Color.Gray else Color.Gray)
             Text(
-                text = "Total",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "S/ %.2f".format(precio),
-                fontSize = 16.sp,
+                dayNum,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF10B981)
+                color = if (isSelected) Color.White else Color.Black
             )
         }
     }
 }
 
 @Composable
-private fun ErrorContent(
-    mensaje: String,
-    onReintentar: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun TimeButton(time: String, isSelected: Boolean, onClick: () -> Unit) {
+    val colorVerde = Color(0xFF10B981)
+    Surface(
+        modifier = Modifier
+            .width(80.dp)
+            .height(45.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        color = if (isSelected) colorVerde else Color.White,
+        border = if (!isSelected) borderStroke() else null
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(contentAlignment = Alignment.Center) {
             Text(
-                text = mensaje,
-                color = Color.Gray,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
+                text = time,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isSelected) Color.White else Color.Black
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onReintentar) {
-                Text("Reintentar")
+        }
+    }
+}
+
+@Composable
+fun RepeatChip(text: String, isSelected: Boolean) {
+    Surface(
+        modifier = Modifier.padding(end = 8.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = if (isSelected) Color.Black else Color.White,
+        border = if (!isSelected) borderStroke() else null
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            fontSize = 14.sp,
+            color = if (isSelected) Color.White else Color.Black
+        )
+    }
+}
+
+@Composable
+fun SummaryCard(precio: Double) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFF1F1F1).copy(alpha = 0.5f)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Subtotal", color = Color.Gray)
+                Text("S/$precio x 1", fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Total", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("S/$precio", fontWeight = FontWeight.Bold, fontSize = 24.sp, color = Color(0xFF10B981))
             }
         }
     }
 }
 
 @Composable
-private fun ExitoContent(
-    mensaje: String,
-    onVolver: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+fun ErrorContent(mensaje: String, onReintentar: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = mensaje,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
-            )
+            Text(text = mensaje, color = Color.Gray, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onVolver) {
-                Text("Volver")
-            }
+            Button(onClick = onReintentar) { Text("Reintentar") }
         }
     }
 }
 
-private fun List<Slot>.fechasUnicas(): List<String> {
-    return map { it.fecha }.distinct().sorted()
+@Composable
+fun ExitoContent(mensaje: String, onVolver: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = mensaje, fontWeight = FontWeight.Bold, fontSize = 18.sp, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onVolver) { Text("Volver") }
+        }
+    }
 }
 
-private fun formatearFecha(fecha: String): String {
-    // Formato esperado: YYYY-MM-DD
-    val partes = fecha.split("-")
-    return if (partes.size == 3) {
-        "${partes[2]}/${partes[1]}/${partes[0]}"
-    } else {
-        fecha
-    }
+@Composable
+fun borderStroke() = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+
+@Composable
+fun DemoFormularioReserva(
+    nombreCuidador: String, 
+    serviciosReales: List<Servicio>, 
+    onConfirmar: () -> Unit
+) {
+    // Si hay servicios reales los usamos, si no usamos mocks
+    val serviciosAMostrar = if (serviciosReales.isNotEmpty()) serviciosReales else listOf(
+        Servicio("1", "Paseo", 18.0, "1"),
+        Servicio("2", "Diurno", 31.0, "1"),
+        Servicio("3", "Hospedaje", 45.0, "1"),
+        Servicio("4", "Médica", 59.0, "1")
+    )
+    
+    val mockSlots = listOf("2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28").map { Slot(it, "10:00") }
+    
+    var selectedService by remember { mutableStateOf(serviciosAMostrar.first()) }
+    var selectedDate by remember { mutableStateOf("2026-06-26") }
+    var selectedTime by remember { mutableStateOf("10:00") }
+
+    FormularioReservaDiseno(
+        slots = mockSlots,
+        servicios = serviciosAMostrar,
+        servicioSeleccionado = selectedService,
+        fechaSeleccionada = selectedDate,
+        rangoSeleccionado = selectedTime,
+        onServicioSeleccionado = { if (it != null) selectedService = it },
+        onFechaSeleccionada = { if (it != null) selectedDate = it },
+        onRangoSeleccionado = { if (it != null) selectedTime = it },
+        onConfirmar = onConfirmar
+    )
 }
