@@ -58,7 +58,8 @@ import com.grupo06.doggoapp.domain.model.Servicio
 fun CuidadorDetalleScreen(
     viewModel: CuidadorDetalleViewModel,
     onVolver: () -> Unit,
-    onReservar: (String) -> Unit
+    onReservar: (String) -> Unit,
+    onMensaje: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -120,7 +121,8 @@ fun CuidadorDetalleScreen(
             is CuidadorDetalleEstado.Success -> {
                 PerfilContent(
                     cuidador = estado.cuidador,
-                    onReservar = onReservar
+                    onReservar = onReservar,
+                    onMensaje = onMensaje
                 )
             }
         }
@@ -130,7 +132,8 @@ fun CuidadorDetalleScreen(
 @Composable
 private fun PerfilContent(
     cuidador: Cuidador,
-    onReservar: (String) -> Unit
+    onReservar: (String) -> Unit,
+    onMensaje: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val colorVerde = Color(0xFF10B981)
@@ -286,7 +289,7 @@ private fun PerfilContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedButton(
-                    onClick = {},
+                    onClick = { onMensaje(cuidador.id) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {

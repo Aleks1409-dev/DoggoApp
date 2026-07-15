@@ -133,18 +133,22 @@ class ProgramarCitaViewModel(
                 val disponibilidad = disponibilidadDeferred.await()
                 val cuidadorResultado = cuidadorDeferred.await()
 
+                // Siempre intentamos capturar los datos del cuidador si están disponibles
+                if (cuidadorResultado is CuidadorResultado.Exito) {
+                    serviciosDelCuidador = cuidadorResultado.cuidador.servicios
+                    _uiState.update { it.copy(nombreCuidador = cuidadorResultado.cuidador.nombre) }
+                }
+
                 when {
                     disponibilidad is ResultadoDisponibilidad.Exito &&
                             cuidadorResultado is CuidadorResultado.Exito -> {
                         slotsDisponibles = disponibilidad.slots
-                        serviciosDelCuidador = cuidadorResultado.cuidador.servicios
                         _uiState.update {
                             it.copy(
                                 estado = ProgramarCitaEstado.DisponibilidadCargada(
                                     slots = slotsDisponibles,
                                     serviciosDelCuidador = serviciosDelCuidador
-                                ),
-                                nombreCuidador = cuidadorResultado.cuidador.nombre
+                                )
                             )
                         }
                     }
